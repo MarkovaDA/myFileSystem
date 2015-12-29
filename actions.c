@@ -132,4 +132,25 @@ int set_block_status(int number, char status)
     }
     return result;
 }
+int remove_block(int number)
+{
+    int result = 0;
+    int status = get_block_status(number);
+    switch (status)
+    {
+        case BLOCK_STATUS_FREE:
+            break;
+        case BLOCK_STATUS_FOLDER:
+            remove_folder(number);
+            break;
+        case BLOCK_STATUS_FILE:
+            remove_file(number);
+            break;
+        default:
+            result = -1;
+            break;
+    }
+    return result;
+}
+
 
