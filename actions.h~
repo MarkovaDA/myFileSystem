@@ -104,6 +104,7 @@ int set_inode_name(int number, char *buf);
 int set_inode_stat(int number, stat_t *buf);
 // добавить узел в папку
 int add_inode_to_folder(int folder_number, int node_number);
+
 // искать первый свободный блок
 int search_free_block();
 // найти узел

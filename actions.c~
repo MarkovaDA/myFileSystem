@@ -152,4 +152,25 @@ int remove_block(int number)
     }
     return result;
 }
+int search_inode(int node_number, char **node_names)
+{
+    int result = -1;
+    if (node_number >= 0 && node_names != NULL)
+    {
+        if (*node_names == NULL)
+        {
+            result = node_number;
+        }
+        else
+        {
+            int next_node_number = search_inode_in_folder(node_number, *node_names);
+            if (next_node_number > 0)
+            {
+                result = search_inode(next_node_number, node_names + 1);
+            }
+        }
+    }
+    return result;
+}
+
 
