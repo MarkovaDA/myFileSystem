@@ -323,6 +323,30 @@ int get_inode_stat(int number, stat_t *stbuf)
     }
     return result;
 }
+int get_inode_name(int number, char *buf)
+{
+    int result = -1;
+    if (number >= 0 && lseek(filesystem_fd, size_of_block * number + NODE_NAME_OFFSET, SEEK_SET) >= 0)
+    {
+        if (read(filesystem_fd, buf, NODE_NAME_MAX_SIZE) == NODE_NAME_MAX_SIZE)
+        {
+            result = 0;
+        }
+    }
+    return result;
+}
+int set_inode_name(int number, char *buf)
+{
+    int result = -1;
+    if (number >= 0 && lseek(filesystem_fd, size_of_block * number + NODE_NAME_OFFSET, SEEK_SET) >= 0)
+    {
+        if (write(filesystem_fd, buf, NODE_NAME_MAX_SIZE) == NODE_NAME_MAX_SIZE)
+        {
+            result = 0;
+        }
+    }
+    return result;
+}
 
 
 
