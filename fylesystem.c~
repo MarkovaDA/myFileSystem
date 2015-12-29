@@ -213,4 +213,62 @@ int my_mknod(const char *path, mode_t mode, dev_t dev)
     }
     return result;
 }
+int my_rename(const char *old_path, const char *new_path)
+{
+    int result = -ENOENT;
+    char **old_node_names = split_path(old_path);
+    if (old_node_names != NULL)
+    {
+        char **new_node_names = split_path(new_path);
+        if (new_node_names != NULL)
+        {
+            char *old_name = exclude_last_node_name(old_node_names);
+            if (old_name != NULL)
+            {
+                char *new_name = exclude_last_node_name(new_node_names);
+                if (new_name != NULL)
+                {
+                    int old_folder_number = search_inode(number_of_root_block, old_node_names);
+                    int new_folder_number = search_inode(number_of_root_block, new_node_names);
+                    int node_number = search_inode_in_folder(old_folder_number, old_name);
+                    remove_node_from_folder(old_folder_number, node_number);
+                    add_inode_to_folder(new_folder_number, node_number);
+                    set_inode_name(node_number, new_name);
+                    result = 0;
+                    destroy_name(new_name);
+                }
+                destroy_name(old_name);
+            }
+            destroy_node_names(new_node_names);
+        }
+        destroy_node_names(old_node_names);
+    }
+    return result;
+}
+int my_rmdir(const char *path)
+{
+    int result = -ENOENT;
+    char **node_names = split_path(path);
+    if (node_names != NULL)
+    {
+        char *name = exclude_last_node_name(node_names);
+        if (name != NULL)
+        {
+            int folder_number = search_inode(number_of_root_block, node_names);
+            if (folder_number >= 0)
+            {
+                int node_number = search_inode_in_folder(folder_number, name);
+                if (node_number >= 0)
+                {
+                    if (remove_node_from_folder(folder_number, node_number) == 0 && remove_block(node_number) == 0)
+                    {
+                        result = 0;
+                    }
+                }
+            }
+            destroy_name(name);
+        }
+        destroy_node_names(node_names);
+    }
+    return result;
 
