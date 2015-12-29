@@ -51,6 +51,72 @@ struct node
     char content[0];
 };
 
+// загрузить данные из файла в ОЗУ и инициализировать глобальные переменные
+int init();
+// создать корень
+int create_root();
+//  создать блок
+void *create_block();
+// создать папку
+int create_folder(const char *name, mode_t mode);
+// создать файл
+int create_file(const char *name, mode_t mode, dev_t dev);
+// создать копию имени
+char *create_name(const char *name);
+// создать пустое имя
+char *create_empty_name();
+// parse group
+char **split_path(const char *path);
+// исключить имя последнего узла
+char *exclude_last_node_name(char **node_names);
+//  читать блок
+int read_block(int number, void *block);
+// записать блок
+int write_block(int number, void *block);
+// удалить файл
+int remove_file(int number);
+// удалить папку
+int remove_folder(int number);
+// удалить блок
+int remove_block(int number);
+//  уничтожить блок
+void destroy_block(void *block);
+// освободить память
+void destroy_name(char *name);
+void destroy_node_names(char **node_names);
+// стереть блок
+int clear_block(int number);
+// удалить узел из папки
+int remove_node_from_folder(int folder_number, int node_number);
+// получить блок
+void *get_block(int number);
+// получить состояние блока
+int get_block_status(int number);
+// получить имя узла
+int get_inode_name(int number, char *buf);
+// получить атрибуты узла
+int get_inode_stat(int number, stat_t *stbuf);
+// задать состояние блока
+int set_block_status(int number, char status);
+// задать имя узла
+int set_inode_name(int number, char *buf);
+// задать атрибуты узла
+int set_inode_stat(int number, stat_t *buf);
+// добавить узел в папку
+int add_inode_to_folder(int folder_number, int node_number);
+// искать первый свободный блок
+int search_free_block();
+// найти узел
+int search_inode(int node_number, char **node_names);
+// поиск узла в папке
+int search_inode_in_folder(int folder_number, const char *node_name);
+
+extern const int size_of_block;
+extern int filesystem_fd;
+extern const int number_of_root_block;
+
+#endif
+
 
 
 
