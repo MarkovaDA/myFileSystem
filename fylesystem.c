@@ -83,3 +83,43 @@ int my_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
     }
     return result;
 }
+int my_open(const char *path, struct fuse_file_info *fi)
+{
+	return 0;
+}
+
+int my_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
+{
+    int result = -ENOENT;
+    char **node_names = split_path(path);
+    if (node_names != NULL)
+    {
+        int number = search_inode(number_of_root_block, node_names);
+        if (number >= 0)
+        {
+            inode_t *file = (inode_t *)get_block(number);
+            if (file != NULL)
+            {
+                if (file->status == BLOCK_STATUS_FILE)
+                {
+                    if (offset < NODE_CONTENT_MAX_SIZE)
+                    {
+                        if (offset + size > NODE_CONTENT_MAX_SIZE)
+                        {
+                            size = NODE_CONTENT_MAX_SIZE - offset;
+                        }
+                        memcpy(buf, file->content + offset, size);
+                        result = size;
+                    }
+                    else
+                    {
+                        result = 0;
+                    }
+                }
+                destroy_block(file);
+            }
+        }
+        destroy_node_names(node_names);
+    }
+    return result;
+}
