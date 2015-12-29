@@ -271,4 +271,31 @@ int my_rmdir(const char *path)
         destroy_node_names(node_names);
     }
     return result;
-
+}
+int my_unlink(const char *path)
+{
+    int result = -ENOENT;
+    char **node_names = split_path(path);
+    if (node_names != NULL)
+    {
+        char *name = exclude_last_node_name(node_names);
+        if (name != NULL)
+        {
+            int folder_number = search_inode(number_of_root_block, node_names);
+            if (folder_number >= 0)
+            {
+                int node_number = search_inode_in_folder(folder_number, name);
+                if (node_number >= 0)
+                {
+                    if (remove_node_from_folder(folder_number, node_number) == 0 && remove_block(node_number) == 0)
+                    {
+                        result = 0;
+                    }
+                }
+            }
+            destroy_name(name);
+        }
+        destroy_node_names(node_names);
+    }
+    return result;
+}
