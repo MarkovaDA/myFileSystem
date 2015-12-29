@@ -399,7 +399,36 @@ char *exclude_last_node_name(char **node_names)
     }
     return result;
 }
-
+void destroy_node_names(char **node_names)
+{
+    if (node_names != NULL)
+    {
+        char **tmp = node_names;
+        while (*tmp != NULL)
+        {
+            destroy_name(*tmp);
+            tmp++;
+        }
+        free(node_names);
+    }
+}
+int clear_block(int number)
+{
+    int result = -1;
+    if (number >= 0 && lseek(filesystem_fd, size_of_block * number, SEEK_SET) >= 0)
+    {
+        void *block = create_block();
+        if (block != NULL)
+        {
+            if (write_block(number, block) == 0)
+            {
+                result = 0;
+            }
+            destroy_block(block);
+        }
+    }
+    return result;
+}
 
 
 

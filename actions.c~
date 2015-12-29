@@ -385,6 +385,50 @@ void destroy_name(char *name)
 {
     free(name);
 }
+char *exclude_last_node_name(char **node_names)
+{
+    char *result = NULL;
+    if (node_names != NULL && *node_names != NULL)
+    {
+        while (node_names[1] != NULL)
+        {
+            node_names++;
+        }
+        result = node_names[0];
+        node_names[0] = NULL;
+    }
+    return result;
+}
+void destroy_node_names(char **node_names)
+{
+    if (node_names != NULL)
+    {
+        char **tmp = node_names;
+        while (*tmp != NULL)
+        {
+            destroy_name(*tmp);
+            tmp++;
+        }
+        free(node_names);
+    }
+}
+int clear_block(int number)
+{
+    int result = -1;
+    if (number >= 0 && lseek(filesystem_fd, size_of_block * number, SEEK_SET) >= 0)
+    {
+        void *block = create_block();
+        if (block != NULL)
+        {
+            if (write_block(number, block) == 0)
+            {
+                result = 0;
+            }
+            destroy_block(block);
+        }
+    }
+    return result;
+}
 
 
 
