@@ -49,3 +49,34 @@ void *create_block()
 {
     return calloc(size_of_block, sizeof(char));
 }
+void destroy_block(void *block)
+{
+    free(block);
+}
+
+
+int read_block(int number, void *block)
+{
+    int result = -1;
+    if (number >= 0 && lseek(filesystem_fd, size_of_block * number, SEEK_SET) >= 0)
+    {
+        if (read(filesystem_fd, block, size_of_block) >= 0)
+        {
+            result = 0;
+        }
+    }
+    return result;
+}
+
+int write_block(int number, void *block)
+{
+    int result = -1;
+    if (number >= 0 && lseek(filesystem_fd, size_of_block * number, SEEK_SET) >= 0)
+    {
+        if (write(filesystem_fd, block, size_of_block) == size_of_block)
+        {
+            result = 0;
+        }
+    }
+    return result;
+}
