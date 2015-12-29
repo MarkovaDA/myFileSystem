@@ -43,3 +43,43 @@ int my_getattr(const char *path, struct stat *stbuf)
     }
     return result;
 }
+int my_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi)
+{
+    int result = -ENOENT;
+    char **node_names = split_path(path);
+    if (node_names != NULL)
+    {
+        int number = search_inode(number_of_root_block, node_names);
+        if (number >= 0)
+        {
+            inode_t *folder = (inode_t *)get_block(number);
+            if (folder != NULL)
+            {
+                if (folder->status == BLOCK_STATUS_FOLDER)
+                {
+                    result = 0;
+                    filler(buf, ".", NULL, 0);
+                    filler(buf, "..", NULL, 0);
+                    char name[NODE_NAME_MAX_SIZE];
+                    stat_t stat;
+                    int *start = (int *)folder->content;
+                    int *end = (int *)((void *)folder + size_of_block);
+                    while (start < end)
+                    {
+                        if (*start > 0 && get_inode_name(*start, name) == 0 && get_inode_stat(*start, &stat) == 0)
+                        {
+                            if (filler(buf, name, &stat, 0) != 0)
+                            {
+                                break;
+                            }
+                        }
+                        start++;
+                    }
+                }
+                destroy_block(folder);
+            }
+        }
+        destroy_node_names(node_names);
+    }
+    return result;
+}

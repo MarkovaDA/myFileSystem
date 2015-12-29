@@ -27,3 +27,19 @@ int my_rmdir(const char *path);
 int my_unlink(const char *path);
 // изменить размер файла
 int my_truncate(const char *path, off_t size);
+
+int my_getattr(const char *path, struct stat *stbuf)
+{
+    int result = -ENOENT;
+    char **node_names = split_path(path);
+    if (node_names != NULL)
+    {
+        int number = search_inode(number_of_root_block, node_names);
+        if (number >= 0 && get_inode_stat(number, stbuf) == 0)
+        {
+            result = 0;
+        }
+        destroy_node_names(node_names);
+    }
+    return result;
+}
