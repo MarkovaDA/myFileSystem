@@ -80,3 +80,30 @@ int write_block(int number, void *block)
     }
     return result;
 }
+int search_free_block()
+{
+    int number = number_of_root_block + 1;
+    char status;
+    int read_result;
+    while (TRUE)
+    {
+        if (lseek(filesystem_fd,  size_of_block * number, SEEK_SET) < 0)
+        {
+            number = -1;
+            break;
+        }
+        read_result = read(filesystem_fd, &status, sizeof(char));
+        if (read_result < 0)
+        {
+            number = -1;
+            break;
+        }
+        if (read_result == 0 || status == BLOCK_STATUS_FREE)
+        {
+            break;
+        }
+        number++;
+    }
+    return number;
+}
+
