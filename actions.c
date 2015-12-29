@@ -347,6 +347,44 @@ int set_inode_name(int number, char *buf)
     }
     return result;
 }
+int set_inode_stat(int number, stat_t *buf)
+{
+    int result = -1;
+    if (number >= 0 && lseek(filesystem_fd, size_of_block * number + NODE_STAT_OFFSET, SEEK_SET) >= 0)
+    {
+        if (write(filesystem_fd, buf, sizeof(stat_t)) == sizeof(stat_t))
+        {
+            result = 0;
+        }
+    }
+    return result;
+}
+char *create_name(const char *name)
+{
+    char *result = (char *)calloc(NODE_NAME_MAX_SIZE, sizeof(char));
+    if (result != NULL)
+    {
+        int size = strlen(name) + 1;
+        if (size > NODE_NAME_MAX_SIZE)
+        {
+            size = NODE_NAME_MAX_SIZE;
+        }
+        memcpy(result, name, size);
+    }
+    return result;
+}
+
+
+char *create_empty_name()
+{
+    return (char *)calloc(NODE_NAME_MAX_SIZE, sizeof(char));
+}
+
+
+void destroy_name(char *name)
+{
+    free(name);
+}
 
 
 
