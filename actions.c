@@ -250,6 +250,45 @@ int remove_folder(int number)
     }
     return result;
 }
+char **split_path(const char *path)
+{
+    char **result = NULL;
+    int path_size = strlen(path) + 1;
+    char *copy_path = (char *)malloc(path_size);
+    if (copy_path != NULL)
+    {
+        memcpy(copy_path, path, path_size);
+        int depth = 0;
+        int i = 0;
+        while (copy_path[i] != '\0')
+        {
+            if (copy_path[i] == '/')
+            {
+                depth++;
+                copy_path[i] = '\0';
+            }
+            i++;
+        }
+        if (copy_path[i - 1] == '\0')
+        {
+            depth--;
+        }
+        result = (char **)malloc(sizeof(char **) * (depth + 1));
+        if (result != NULL)
+        {
+            i = 0;
+            int j = 0;
+            while (j < depth)
+            {
+                while (copy_path[i++] != '\0');
+                result[j++] = create_name(copy_path + i);
+            }
+            result[j] = NULL;
+        }
+        free(copy_path);
+    }
+    return result;
+}
 
 
 

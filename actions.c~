@@ -203,5 +203,93 @@ int remove_file(int number)
 {
     return set_block_status(number, BLOCK_STATUS_FREE);
 }
+int create_folder(const char *name, mode_t mode)
+{
+    int number = search_free_block();
+    if (number >= 0)
+    {
+        inode_t *folder = (inode_t *)create_block();
+        if (folder != NULL)
+        {
+            int name_size = strlen(name) + 1;
+            if (name_size > NODE_NAME_MAX_SIZE)
+            {
+                name_size = NODE_NAME_MAX_SIZE;
+            }
+            folder->status = BLOCK_STATUS_FOLDER;
+            memcpy(folder->name, name, name_size);
+            folder->stat.st_mode = S_IFDIR | mode;
+            folder->stat.st_nlink = 2;
+            if (write_block(number, folder) != 0)
+            {
+                number = -1;
+            }
+            destroy_block(folder);
+        }
+    }
+    return number;
+}
+int remove_folder(int number)
+{
+    int result = -1;
+    inode_t *folder = (inode_t *)get_block(number);
+    if (folder != NULL)
+    {
+        int *start = (int *)folder->content;
+        int *end = (int *)((void *)folder + size_of_block);
+        while (start < end)
+        {
+            if (*start > 0)
+            {
+                 remove_block(*start);
+            }
+            start++;
+        }
+        destroy_block(folder);
+        result = set_block_status(number, BLOCK_STATUS_FREE);
+    }
+    return result;
+}
+char **split_path(const char *path)
+{
+    char **result = NULL;
+    int path_size = strlen(path) + 1;
+    char *copy_path = (char *)malloc(path_size);
+    if (copy_path != NULL)
+    {
+        memcpy(copy_path, path, path_size);
+        int depth = 0;
+        int i = 0;
+        while (copy_path[i] != '\0')
+        {
+            if (copy_path[i] == '/')
+            {
+                depth++;
+                copy_path[i] = '\0';
+            }
+            i++;
+        }
+        if (copy_path[i - 1] == '\0')
+        {
+            depth--;
+        }
+        result = (char **)malloc(sizeof(char **) * (depth + 1));
+        if (result != NULL)
+        {
+            i = 0;
+            int j = 0;
+            while (j < depth)
+            {
+                while (copy_path[i++] != '\0');
+                result[j++] = create_name(copy_path + i);
+            }
+            result[j] = NULL;
+        }
+        free(copy_path);
+    }
+    return result;
+}
+
+
 
 
