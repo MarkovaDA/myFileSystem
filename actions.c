@@ -385,6 +385,21 @@ void destroy_name(char *name)
 {
     free(name);
 }
+char *exclude_last_node_name(char **node_names)
+{
+    char *result = NULL;
+    if (node_names != NULL && *node_names != NULL)
+    {
+        while (node_names[1] != NULL)
+        {
+            node_names++;
+        }
+        result = node_names[0];
+        node_names[0] = NULL;
+    }
+    return result;
+}
+
 
 
 
