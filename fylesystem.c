@@ -4,7 +4,21 @@
 #include <string.h>
 #include <errno.h>
 #include "actions.h"
-
+// структура определенных мною операций
+struct fuse_operations my_oper =
+{
+    .getattr    = my_getattr,
+    .readdir    = my_readdir,
+    .open       = my_open,
+    .read       = my_read,
+    .write      = my_write,
+    .mkdir      = my_mkdir,
+    .mknod      = my_mknod,
+    .rename     = my_rename,
+    .rmdir      = my_rmdir,
+    .unlink     = my_unlink,
+    .truncate   = my_truncate,
+};
 // получаем атрибуты файла
 int my_getattr(const char *path, struct stat *stbuf);
 // получаем сдержимое папки
@@ -325,4 +339,13 @@ int my_truncate(const char *path, off_t size)
         destroy_node_names(node_names);
     }
     return result;
+}
+int main(int argc, char *argv[])
+{
+    if (init() != 0)
+    {
+        printf("initialization error\n");
+        return -1;
+    }
+    return fuse_main(argc, argv, &my_oper, NULL);
 }
