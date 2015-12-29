@@ -120,4 +120,16 @@ void *get_block(int number)
     }
     return block;
 }
+int set_block_status(int number, char status)
+{
+    int result = -1;
+    if (number >= 0 && lseek(filesystem_fd, size_of_block * number + BLOCK_STATUS_OFFSET, SEEK_SET) >= 0)
+    {
+        if (write(filesystem_fd, &status, sizeof(char)) == sizeof(char))
+        {
+            result = 0;
+        }
+    }
+    return result;
+}
 
