@@ -106,4 +106,18 @@ int search_free_block()
     }
     return number;
 }
+void *get_block(int number)
+{
+    void *block = NULL;
+    if (number >= 0)
+    {
+        block = create_block();
+        if (block != NULL && read_block(number, block) != 0)
+        {
+            destroy_block(block);
+            block = NULL;
+        }
+    }
+    return block;
+}
 
