@@ -5,6 +5,15 @@
 #define FUSE_USE_VERSION 26
 #include <fuse.h>
 
+//упаковка структур по одному байту
+#pragma pack(1)
+
+//#define DEBUG
+#ifdef DEBUG
+#define TRACE printf("[DEBUG] FILE:%s LINE:%d\n", __FILE__, __LINE__);
+#else
+#define TRACE
+#endif
 
 #define FILESYSTEM "filesystem"
 #define NUMBER_OF_ROOT_BLOCK 0
