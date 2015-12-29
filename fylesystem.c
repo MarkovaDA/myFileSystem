@@ -165,3 +165,52 @@ int my_write(const char *path, const char *buf, size_t size, off_t offset, struc
     }
     return result;
 }
+int my_mkdir(const char *path, mode_t mode)
+{
+    int result = -ENOENT;
+    char **node_names = split_path(path);
+    if (node_names != NULL)
+    {
+        char *name = exclude_last_node_name(node_names);
+        if (name != NULL)
+        {
+            int folder_number = search_inode(number_of_root_block, node_names);
+            if (folder_number >= 0)
+            {
+                int new_folder = create_folder(name, mode);
+                if (new_folder >= 0 && add_inode_to_folder(folder_number, new_folder) == 0)
+                {
+                    result = 0;
+                }
+            }
+            destroy_name(name);
+        }
+        destroy_node_names(node_names);
+    }
+    return result;
+}
+int my_mknod(const char *path, mode_t mode, dev_t dev)
+{
+    int result = -ENOENT;
+    char **node_names = split_path(path);
+    if (node_names != NULL)
+    {
+        char *name = exclude_last_node_name(node_names);
+        if (name != NULL)
+        {
+            int folder_number = search_inode(number_of_root_block, node_names);
+            if (folder_number >= 0)
+            {
+                int new_file = create_file(name, mode, dev);
+                if (new_file >= 0 && add_inode_to_folder(folder_number, new_file) == 0)
+                {
+                    result = 0;
+                }
+            }
+            destroy_name(name);
+        }
+        destroy_node_names(node_names);
+    }
+    return result;
+}
+
