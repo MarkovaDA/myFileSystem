@@ -123,3 +123,45 @@ int my_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
     }
     return result;
 }
+int my_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
+{
+    int result = -ENOENT;
+    char **node_names = split_path(path);
+    if (node_names != NULL)
+    {
+        int number = search_inode(number_of_root_block, node_names);
+        if (number >= 0)
+        {
+            inode_t *file = (inode_t *)get_block(number);
+            if (file != NULL)
+            {
+                if (file->status == BLOCK_STATUS_FILE)
+                {
+                    if (offset < NODE_CONTENT_MAX_SIZE)
+                    {
+                        if (offset + size > NODE_CONTENT_MAX_SIZE)
+                        {
+                            size = NODE_CONTENT_MAX_SIZE - offset;
+                        }
+                        memcpy(file->content + offset, buf, size);
+                        if (file->stat.st_size < offset + size)
+                        {
+                            file->stat.st_size = offset + size;
+                        }
+                        if (write_block(number, file) == 0)
+                        {
+                            result = size;
+                        }
+                    }
+                    else
+                    {
+                        result = 0;
+                    }
+                }
+                destroy_block(file);
+            }
+        }
+        destroy_node_names(node_names);
+    }
+    return result;
+}
