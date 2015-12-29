@@ -299,3 +299,30 @@ int my_unlink(const char *path)
     }
     return result;
 }
+
+int my_truncate(const char *path, off_t size)
+{
+    int result = -ENOENT;
+    char **node_names = split_path(path);
+    if (node_names != NULL)
+    {
+        int number = search_inode(number_of_root_block, node_names);
+        if (number >= 0)
+        {
+            stat_t stat;
+            if (get_inode_stat(number, &stat) == 0)
+            {
+                if (size <= NODE_CONTENT_MAX_SIZE)
+                {
+                    stat.st_size = size;
+                    if (set_inode_stat(number, &stat) == 0)
+                    {
+                        result = 0;
+                    }
+                }
+            }
+        }
+        destroy_node_names(node_names);
+    }
+    return result;
+}
