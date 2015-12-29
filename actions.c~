@@ -172,5 +172,36 @@ int search_inode(int node_number, char **node_names)
     }
     return result;
 }
+int create_file(const char *name, mode_t mode, dev_t dev)
+{
+    int number = search_free_block();
+    if (number >= 0)
+    {
+        inode_t *file = (inode_t *)create_block();
+        if (file != NULL)
+        {
+            int name_size = strlen(name) + 1;
+            if (name_size > NODE_NAME_MAX_SIZE)
+            {
+                name_size = NODE_NAME_MAX_SIZE;
+            }
+            file->status = BLOCK_STATUS_FILE;
+            memcpy(file->name, name, name_size);
+            file->stat.st_mode = S_IFREG | mode;
+            file->stat.st_rdev = dev;
+            file->stat.st_nlink = 1;
+            if (write_block(number, file) != 0)
+            {
+                number = -1;
+            }
+            destroy_block(file);
+        }
+    }
+    return number;
+}
+int remove_file(int number)
+{
+    return set_block_status(number, BLOCK_STATUS_FREE);
+}
 
 

@@ -203,5 +203,54 @@ int remove_file(int number)
 {
     return set_block_status(number, BLOCK_STATUS_FREE);
 }
+int create_folder(const char *name, mode_t mode)
+{
+    int number = search_free_block();
+    if (number >= 0)
+    {
+        inode_t *folder = (inode_t *)create_block();
+        if (folder != NULL)
+        {
+            int name_size = strlen(name) + 1;
+            if (name_size > NODE_NAME_MAX_SIZE)
+            {
+                name_size = NODE_NAME_MAX_SIZE;
+            }
+            folder->status = BLOCK_STATUS_FOLDER;
+            memcpy(folder->name, name, name_size);
+            folder->stat.st_mode = S_IFDIR | mode;
+            folder->stat.st_nlink = 2;
+            if (write_block(number, folder) != 0)
+            {
+                number = -1;
+            }
+            destroy_block(folder);
+        }
+    }
+    return number;
+}
+int remove_folder(int number)
+{
+    int result = -1;
+    inode_t *folder = (inode_t *)get_block(number);
+    if (folder != NULL)
+    {
+        int *start = (int *)folder->content;
+        int *end = (int *)((void *)folder + size_of_block);
+        while (start < end)
+        {
+            if (*start > 0)
+            {
+                 remove_block(*start);
+            }
+            start++;
+        }
+        destroy_block(folder);
+        result = set_block_status(number, BLOCK_STATUS_FREE);
+    }
+    return result;
+}
+
+
 
 
