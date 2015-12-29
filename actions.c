@@ -496,6 +496,34 @@ int remove_node_from_folder(int folder_number, int node_number)
     }
     return result;
 }
+int search_inode_in_folder(int folder_number, const char *node_name)
+{
+    int result = -1;
+    if (folder_number >= 0 && node_name != NULL)
+    {
+        inode_t *folder = (inode_t *)get_block(folder_number);
+        if (folder != NULL)
+        {
+            if (folder->status == BLOCK_STATUS_FOLDER)
+            {
+                char name[NODE_NAME_MAX_SIZE];
+                int *start = (int *)folder->content;
+                int *end = (int *)((void *)folder + size_of_block);
+                while (start < end)
+                {
+                    if (*start > 0 && get_inode_name(*start, name) == 0 && strcmp(node_name, name) == 0)
+                    {
+                        result = *start;
+                        break;
+                    }
+                    start++;
+                }
+            }
+            destroy_block(folder);
+        }
+    }
+    return result;
+}
 
 
 
