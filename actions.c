@@ -289,6 +289,40 @@ char **split_path(const char *path)
     }
     return result;
 }
+int get_block_status(int number)
+{
+    int result = -1;
+    if (number >= 0 && lseek(filesystem_fd, size_of_block * number + BLOCK_STATUS_OFFSET, SEEK_SET) >= 0)
+    {
+        char status;
+        result = read(filesystem_fd, &status, sizeof(char));
+        if (result < 0)
+        {
+            result = -1;
+        }
+        else if (result == 0)
+        {
+            result = BLOCK_STATUS_FREE;
+        }
+        else
+        {
+            result = status;
+        }
+    }
+    return result;
+}
+int get_inode_stat(int number, stat_t *stbuf)
+{
+    int result = -1;
+    if (number >= 0 && lseek(filesystem_fd, size_of_block * number + NODE_STAT_OFFSET, SEEK_SET) >= 0)
+    {
+        if (read(filesystem_fd, stbuf, sizeof(stat_t)) == sizeof(stat_t))
+        {
+            result = 0;
+        }
+    }
+    return result;
+}
 
 
 
