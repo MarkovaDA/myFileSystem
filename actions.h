@@ -24,3 +24,33 @@
 #define NODE_STAT_OFFSET (NODE_NAME_OFFSET + NODE_NAME_MAX_SIZE)
 #define NODE_CONTENT_OFFSET (NODE_STAT_OFFSET + sizeof(stat_t))
 #define NODE_CONTENT_MAX_SIZE (size_of_block - NODE_CONTENT_OFFSET)
+
+// информация о файле
+typedef struct stat stat_t;
+// файл или папка
+typedef struct node inode_t;
+
+enum boolean
+{
+    FALSE = 0,
+    TRUE = 1,
+};
+
+enum block_status
+{
+    BLOCK_STATUS_FREE = 0,
+    BLOCK_STATUS_FOLDER = 1,
+    BLOCK_STATUS_FILE = 2,
+};
+
+struct node
+{
+    char status;
+    char name[NODE_NAME_MAX_SIZE];
+    stat_t stat;
+    char content[0];
+};
+
+
+
+
